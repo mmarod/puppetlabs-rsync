@@ -71,7 +71,7 @@ define rsync::put (
     delete_undef_values([$options, $myPurge, $myExclude, $myInclude, $myUserOpt, $source, "${myUser}${myPath}"]), ' ')
 
   if $::osfamily == 'windows' {
-    $onlyif      = "rsync --dry-run --itemize-changes ${rsync_options} | find /v /c \"\""
+    $onlyif      = "C:\\windows\\system32\\cmd.exe /c rsync --dry-run --itemize-changes ${rsync_options} | find /v /c \"\""
     $command     = "C:\\windows\\system32\\cmd.exe /c rsync -q ${rsync_options}"
   } else {
     $onlyif  = "test `rsync --dry-run --itemize-changes ${rsync_options} | wc -l` -gt 0"
