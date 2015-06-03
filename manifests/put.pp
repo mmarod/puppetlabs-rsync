@@ -33,7 +33,8 @@ define rsync::put (
   $include = undef,
   $keyfile = undef,
   $timeout = '900',
-  $options = '-a'
+  $options = '-a',
+  $path = [ '/bin', '/usr/bin' ],
 ) {
 
   if $keyfile {
@@ -68,16 +69,24 @@ define rsync::put (
   $rsync_options = join(
     delete_undef_values([$options, $myPurge, $myExclude, $myInclude, $myUserOpt, $source, "${myUser}${myPath}"]), ' ')
 
+  if ${::osfamily} == 'windows' {
+    $onlyif = "rsync --dry-run --itemize-changes ${rsync_options} | find /v /c \"\""
+    command => "C:\\windows\\system32\\cmd.exe /c rsync -q ${rsync_options}"
+  } else {
+    $onlyif = "test `rsync --dry-run --itemize-changes ${rsync_options} | wc -l` -gt 0"
+    command => "rsync -q ${rsync_options}"
+  }
+
   exec { "rsync ${name}":
-    command => "rsync -q ${rsync_options}",
-    path    => [ '/bin', '/usr/bin' ],
+    command => $command,
+    path    => $path,
     # perform a dry-run to determine if anything needs to be updated
     # this ensures that we only actually create a Puppet event if something needs to
     # be updated
     # TODO - it may make senes to do an actual run here (instead of a dry run)
     #        and relace the command with an echo statement or something to ensure
     #        that we only actually run rsync once
-    onlyif  => "test `rsync --dry-run --itemize-changes ${rsync_options} | wc -l` -gt 0",
+    onlyif  => $onlyif,
     timeout => $timeout,
   }
 }
