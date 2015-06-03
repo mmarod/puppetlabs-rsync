@@ -12,16 +12,16 @@ class rsync(
   $cwrsync_url           = 'https://www.itefix.net/dl/cwRsync_5.4.1_x86_Free.zip',
 ) {
   if $manage_package {
-    if ${::osfamily} == 'windows' {
+    if $::osfamily == 'windows' {
       download_file { 'download-cwrsync':
         url                   => $cwrsync_url,
         destination_directory => $destination_directory,
         proxyAddress          => $proxyAddress,
-      }
+      } ->
 
-      windows::unzip { "${destination_directory}/${destination_zipped}":
+      windows::unzip { "${destination_directory}\\${destination_zipped}":
         destination => $destination_directory,
-        creates     => "${destination_directory}/${destination_unzipped}"
+        creates     => "${destination_directory}\\${destination_unzipped}"
       }
     } else {
       package { 'rsync':

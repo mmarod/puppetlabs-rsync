@@ -34,7 +34,7 @@ define rsync::put (
   $keyfile      = undef,
   $timeout      = '900',
   $options      = '-a',
-  $exec_path    = [ '/bin', '/usr/bin' ]
+  $exec_path    = [ '/bin', '/usr/bin' ],
   $environment  = undef,
 ) {
 
@@ -70,7 +70,7 @@ define rsync::put (
   $rsync_options = join(
     delete_undef_values([$options, $myPurge, $myExclude, $myInclude, $myUserOpt, $source, "${myUser}${myPath}"]), ' ')
 
-  if ${::osfamily} == 'windows' {
+  if $::osfamily == 'windows' {
     $onlyif      = "rsync --dry-run --itemize-changes ${rsync_options} | find /v /c \"\""
     $command     = "C:\\windows\\system32\\cmd.exe /c rsync -q ${rsync_options}"
   } else {
